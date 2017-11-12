@@ -19,13 +19,16 @@ news_dict['title'] = []
 news_dict['content'] = []
 
 errors = []
-for num in range(187638, 209499):
+# for num in range(187638, 209499):
+for num in range(187638, 188000):
     link = get_url(num)
     try:
         res = requests.get(link)
         dom = BeautifulSoup(res.content, 'html5lib')
     except:
-        errors.append((num, 'link'))
+        indicator = (num, 'link')
+        errors.append(indicator)
+        print ("ERROR: " + str(indicator))
         continue
 
     news_dict['link'].append(link)
@@ -37,7 +40,10 @@ for num in range(187638, 209499):
         else:
             news_dict['title'].append('none')
     except:
-        errors.append((num, 'title'))
+        news_dict['title'].append('none')
+        indicator = (num, 'title')
+        errors.append(indicator)
+        print ("ERROR: " + str(indicator))
         pass
 
     try:
@@ -48,7 +54,11 @@ for num in range(187638, 209499):
         else:
             news_dict['date'].append('none')
     except:
-        errors.append((num, 'date'))
+        news_dict['date'].append('none')
+        indicator = (num, 'date')
+        errors.append(indicator)
+        print ("ERROR: " + str(indicator))
+
         pass
 
     try:
@@ -59,9 +69,27 @@ for num in range(187638, 209499):
         else:
             news_dict['content'].append('none')
     except:
-        errors.append((num, 'content'))
+        news_dict['content'].append('none')
+        indicator = (num, 'content')
+        errors.append(indicator)
+        print ("ERROR: " + str(indicator))
+
         pass
 
-    if num % 4000 == 0:
+    try:
+        if num % 4000 == 0:
+            df = pd.DataFrame(news_dict)
+            df.to_csv('./data/medipana/news_medipana_{}.csv'.format(num), encoding='utf-8-sig')
+            print("SUCCESS: [{}] saved".format(num))
+    except:
+        print ("ERROR: [{}]not saved".format(num))
+        pass
+
+    if num % 50 == 0:
         df = pd.DataFrame(news_dict)
-        df.to_csv('./data/medipana/news_medipana_{}.csv'.format(num), encoding='utf-8-sig')
+        df.to_csv('./data/medipana/news_medipana.csv', encoding='utf-8-sig')
+        print ("[{}] done".format(num))
+
+print (errors)
+df = pd.DataFrame(news_dict)
+df.to_csv('./data/medipana/news_medipana.csv', encoding='utf-8-sig')
